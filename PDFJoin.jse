@@ -1,0 +1,30 @@
+//---------------------------------------------------------
+// ドラッグ・アンド・ドロップされたPDFを結合する
+// ConcatPDF.exeが必要です！！
+//---------------------------------------------------------
+// ドラッグ・アンド・ドロップされたファイルを確認する
+var file_count = WScript.Arguments.Count();
+if (file_count == 0) {
+  WScript.echo("ファイルがありません。");
+  WScript.Quit();
+}
+
+// ひとつ目のファイルにMerged_をつけたファイル名で出力する
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var file_path = WScript.Arguments.Item(0);
+var dir_path = fso.GetParentFolderName(file_path);
+var file_name = fso.GetBaseName(file_path);
+
+var out_put_file_name = '"' + dir_path + "\\" + file_name + "_Merged.pdf" + '"'
+
+var command = 'cmd /c ""C:\\Program Files (x86)\\ConcatPDF\\ConcatPDF.exe" /outfile ' + out_put_file_name;
+
+// ドラッグ・アンド・ドロップされたファイルを1つずつ処理する
+for (var i = 0; i < WScript.Arguments.Count(); i++) {
+  command += " " + '"' + WScript.Arguments.Item(i) + '"';
+}
+command += '"'
+var shell = WScript.CreateObject("WScript.Shell");
+shell.Run(command, 0, true);
+WScript.echo("PDF結合が終わりました!");
+

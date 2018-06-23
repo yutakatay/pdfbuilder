@@ -1,0 +1,46 @@
+//---------------------------------------------------------
+// ドラッグ・アンド・ドロップされたExcel/WordファイルをPDFに変換する
+//---------------------------------------------------------
+// ドラッグ・アンド・ドロップされたファイルを確認する
+var file_count = WScript.Arguments.Count();
+if (file_count == 0) {
+  WScript.echo("ファイルがありません。");
+  WScript.Quit();
+}
+
+// Excel/Wordを起動する
+var word  = WScript.CreateObject("Word.Application");
+var excel = WScript.CreateObject("Excel.Application");
+
+// ドラッグ・アンド・ドロップされたファイルを1つずつ処理する
+for (var i = 0; i < WScript.Arguments.Count(); i++) {
+  convertToPDF(WScript.Arguments.Item(i));
+}
+word.Quit();
+excel.Quit();
+WScript.echo("PDF変換が終わりました!");
+//---------------------------------------------------------
+// WordファイルをPDFに変換する関数
+function convertToPDF(fname) {
+  var objFileSys = new ActiveXObject("Scripting.FileSystemObject");
+  var dir_path = objFileSys.GetParentFolderName(fname);
+  var file_name = objFileSys.GetBaseName(fname);
+  var fname_pdf = dir_path + "\\" + file_name + ".pdf";
+  var ext = fname.match(/\.\w+?$/i);
+  if (!ext) return;
+  ext = String(ext);
+  if (ext.indexOf("doc") > 0 || ext.indexOf("docx") > 0) {
+    var doc = word.Documents.Open(fname);
+    doc.SaveAs(fname_pdf, 17/*wdFormatPDF*/);
+    doc.Close();
+  }
+  else if (ext.indexOf("xls") > 0 || ext.indexOf("xlsx") > 0) {
+    var book = excel.Workbooks.Open(fname);
+    book.ExportAsFixedFormat (0/*xlTypePDF*/, fname_pdf);
+    book.Close();
+  }
+  else {
+    WScript.Echo(ext+"は処理対象外です。\n" + fname);
+  }
+}
+//----------------------------------------------------

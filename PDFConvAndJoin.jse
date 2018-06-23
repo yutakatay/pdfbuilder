@@ -1,0 +1,30 @@
+var fso = new ActiveXObject("Scripting.FileSystemObject")
+var script_dir_path = fso.getParentFolderName(WScript.ScriptFullName)
+
+// ドラッグ・アンド・ドロップされたファイルを確認する
+var file_count = WScript.Arguments.Count();
+if (file_count == 0) {
+  WScript.echo("ファイルがありません。");
+  WScript.Quit();
+}
+
+var args = "";
+// ドラッグ・アンド・ドロップされたファイルを1つずつ処理する
+for (var i = 0; i < WScript.Arguments.Count(); i++) {
+  args += " " + '"' + WScript.Arguments.Item(i) + '"';
+}
+
+var shell = WScript.CreateObject("WScript.Shell");
+shell.Run('"' + script_dir_path + "\\PDFConvert.jse" + '"' + args, 0, true);
+
+// ドラッグ・アンド・ドロップされたファイルを1つずつ処理する
+var args_pdf = "";
+for (var i = 0; i < WScript.Arguments.Count(); i++) {
+  var file_path = WScript.Arguments.Item(i);
+  var dir_path = fso.GetParentFolderName(file_path);
+  var file_name = fso.GetBaseName(file_path);
+  args_pdf += " " + '"' + dir_path + "\\" + file_name + ".pdf" + '"';
+}
+
+var shell = WScript.CreateObject("WScript.Shell");
+shell.Run('"' + script_dir_path + "\\PDFJoin.jse" + '"' + args_pdf, 0, true);
